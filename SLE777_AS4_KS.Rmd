@@ -1,0 +1,98 @@
+---
+title: "SLE777_AS4_KS"
+author: "Karmanpreet Sukhija"
+date: "2025-09-28"
+output: html_document
+theme: cosmo
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Part 1
+
+**Question 1**
+```{r}
+URL <- "https://raw.githubusercontent.com/ghazkha/Assessment4/refs/heads/main/gene_expression.tsv"
+NAME <- "gene_expression.tsv"
+download.file(URL, destfile=NAME)
+gene_exp <- read.table("gene_expression.tsv", stringsAsFactors = FALSE, header = TRUE, row.names = 1)
+head(gene_exp)
+```
+
+**Question 2**
+```{r}
+gene_exp$GENE.MEAN <- rowMeans(gene_exp)
+head(gene_exp)
+```
+
+**Question 3**
+```{r}
+sorted_mean_genes <- gene_exp[order(gene_exp$GENE.MEAN, decreasing = TRUE),]
+head(sorted_mean_genes, n=10)
+```
+
+**Question 4**
+```{r}
+low_gene_number <- subset(gene_exp, GENE.MEAN < 10)
+nrow(low_gene_number)
+```
+
+
+**Question 5** 
+```{r}
+hist(gene_exp$GENE.MEAN, xlab = "Mean Gene Count", ylab = "Frequency", main = "Mean Gene Count", col = "pink")
+
+```
+
+**Question 6**
+```{r}
+URL2 = "https://raw.githubusercontent.com/ghazkha/Assessment4/refs/heads/main/growth_data.csv"
+NAME2 = "growth_data.csv"
+download.file(URL2, destfile = NAME2)
+growth_data <- read.table("growth_data.csv", sep = ",", header = TRUE)
+head(growth_data)
+```
+**Question 7**
+```{r}
+northeast_trees <- subset(growth_data, Site == "northeast")
+
+mean(northeast_trees$Circumf_2005_cm)
+sd(northeast_trees$Circumf_2005_cm)
+
+mean(northeast_trees$Circumf_2020_cm)
+sd(northeast_trees$Circumf_2020_cm)
+
+southwest_trees <- subset(growth_data, Site == "southwest")
+
+mean(southwest_trees$Circumf_2005_cm)
+sd(southwest_trees$Circumf_2005_cm)
+
+mean(southwest_trees$Circumf_2020_cm)
+sd(southwest_trees$Circumf_2020_cm)
+```
+
+**Question 8**
+```{r}
+boxplot(northeast_trees$Circumf_2005_cm, northeast_trees$Circumf_2020_cm, ylab = "Tree Circumference (cm)", main = "Tree Circumference at Northeast Site (cm)", names = c("2005", "2020"), xlab = "Year")
+
+boxplot(southwest_trees$Circumf_2005_cm, southwest_trees$Circumf_2020_cm, ylab = "Tree Circumference (cm)", main = "Tree Circumference at Southwest Site (cm)", names = c("2005", "2020"), xlab = "Year")
+```
+
+**Question 9**
+```{r}
+mean(northeast_trees$Circumf_2020_cm - northeast_trees$Circumf_2010_cm)
+
+mean(southwest_trees$Circumf_2020_cm - southwest_trees$Circumf_2010_cm)
+```
+
+**Question 10**
+```{r}
+northeast_trees$Tenyear_growth <- northeast_trees$Circumf_2020_cm - northeast_trees$Circumf_2010_cm
+
+southwest_trees$Tenyear_growth <- southwest_trees$Circumf_2020_cm - southwest_trees$Circumf_2010_cm
+
+t.test(northeast_trees$Tenyear_growth, southwest_trees$Tenyear_growth)
+```
+
