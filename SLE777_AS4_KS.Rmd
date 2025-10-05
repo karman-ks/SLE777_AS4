@@ -1,0 +1,419 @@
+---
+title: "SLE777_AS4_KS"
+author: "Karmanpreet Sukhija"
+date: "2025-09-28"
+output: html_document
+theme: cosmo
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Part 1
+
+**Question 1**
+The file “gene_expression.tsv” was read in using the download.file command. The data within this file was assigned to a variable as a table, where stringsAsFactors = FALSE to ensure strings were not converted to factors (Xie, 2020). The first six genes were shown using the head command. 
+```{r}
+URL <- "https://raw.githubusercontent.com/ghazkha/Assessment4/refs/heads/main/gene_expression.tsv"
+NAME <- "gene_expression.tsv"
+download.file(URL, destfile=NAME)
+gene_exp <- read.table("gene_expression.tsv", stringsAsFactors = FALSE, header = TRUE, row.names = 1)
+head(gene_exp)
+```
+
+**Question 2**
+The mean gene expression was calculated using the rowMeans command and subsequent results were added to the gene expression data frame. The head command was then used to observe the gene expression means of the first six genes. 
+```{r}
+gene_exp$GENE.MEAN <- rowMeans(gene_exp)
+head(gene_exp)
+```
+
+**Question 3**
+The gene expression data frame was sorted using the order command, where decreasing = TRUE. Following this, the head command (n = 10) was used to display ten genes with the highest mean expression. 
+```{r}
+sorted_mean_genes <- gene_exp[order(gene_exp$GENE.MEAN, decreasing = TRUE),]
+head(sorted_mean_genes, n=10)
+```
+
+**Question 4**
+To then determine the number of genes with mean gene expression <10, all genes which had a gene expression mean of <10 were subsetted and the number of rows of the subset were calculated. Therefore, the number of genes with a gene expression mean of <10 is 35,988 genes.  
+```{r}
+low_gene_number <- subset(gene_exp, GENE.MEAN < 10)
+nrow(low_gene_number)
+```
+
+
+**Question 5** 
+The mean gene count was then visualised using a histogram. From this graph, the mean gene count is very heavily skewed, as only one bar is observed. This suggests that majority of genes have a mean gene count less than 100,000.
+
+After setting a limit on the x-axis to 5000 (tubby and zx8754, 2015) and implementing more breaks in the histogram, it is revealed that the data is still heavily skewed, and majority of genes have a mean gene count of less than 1000. 
+```{r}
+hist(gene_exp$GENE.MEAN, 
+     xlab = "Mean Gene Count", 
+     ylab = "Frequency", 
+     main = "Mean Gene Count", 
+     col = "pink")
+
+#More 'zoomed in' view of the histogram, as it is heavily skewed.
+hist(gene_exp$GENE.MEAN, 
+     xlab = "Mean Gene Count", 
+     ylab = "Frequency", 
+     main = "Mean Gene Count (Zoomed in 0-5000)", 
+     col = "pink",
+     xlim = c(0,5000),
+     breaks = 500)
+
+```
+
+**Question 6**
+Similarly to Question 1, the growth_data.csv file was imported using the download.file command. Using the head command revealed the column names of the dataset which were, Site, TreeID, Circumf_2005_cm, Circumf_2010_cm, Circumf_2015_cm and Circumf_2020_cm. 
+```{r}
+URL2 = "https://raw.githubusercontent.com/ghazkha/Assessment4/refs/heads/main/growth_data.csv"
+NAME2 = "growth_data.csv"
+download.file(URL2, destfile = NAME2)
+growth_data <- read.table("growth_data.csv", sep = ",", header = TRUE)
+head(growth_data)
+```
+**Question 7**
+The data was first subsetted according to the study site. Following this, the mean and standard deviation (SD) of tree circumference at the start and end of the study at both sites was calculated. The mean tree circumference in 2005 at the North-East site and South-West site was 5.29 cm and 4.86 cm, and the SD was 0.91 cm and 1.15 cm, respectively. At the end of the study, in 2020, the mean tree circumference at the North-East site and South-West site was 54.23 cm and 45.60 cm, and the SD was 25.23 cm and 17.87 cm, respectively. 
+```{r}
+#North-East Site Trees
+northeast_trees <- subset(growth_data, Site == "northeast")
+
+#Start of the study
+mean(northeast_trees$Circumf_2005_cm)
+sd(northeast_trees$Circumf_2005_cm)
+
+#End of the study
+mean(northeast_trees$Circumf_2020_cm)
+sd(northeast_trees$Circumf_2020_cm)
+
+#--------------------------------------------------------------------#
+
+#South-West Site Trees
+southwest_trees <- subset(growth_data, Site == "southwest")
+
+#Start of the study
+mean(southwest_trees$Circumf_2005_cm)
+sd(southwest_trees$Circumf_2005_cm)
+
+#End of the study 
+mean(southwest_trees$Circumf_2020_cm)
+sd(southwest_trees$Circumf_2020_cm)
+```
+
+**Question 8**
+To visualise the distribution of tree circumference at each site, at the start and end of the study, box plots were generated using the boxplot function. From these graphs it seen that, at the start of the study, the median tree circumference is higher and less variables, compared to the tree circumference at the South-West site. At the end of the study in 2020, the median tree circumference is higher and more variable at the North-East site, compared to the South-West site.
+```{r}
+#Boxplot of tree circumference at each site at the start of the study, 2005
+boxplot(northeast_trees$Circumf_2005_cm, southwest_trees$Circumf_2005_cm, 
+        ylab = "Tree Circumference (cm)", 
+        xlab = "Site",
+        main = "Tree Circumference (cm) in 2005 at Northeast and Southwest Sites", 
+        names = c("North-East", "South-West"))
+
+#Boxplot of tree circumference at each site at the end of the study, 2020
+boxplot(northeast_trees$Circumf_2020_cm, southwest_trees$Circumf_2020_cm, 
+        ylab = "Tree Circumference (cm)", 
+        xlab = "Site",
+        main = "Tree Circumference (cm) in 2020 at Northeast and Southwest Sites", 
+        names = c("North-East", "South-West"))
+```
+
+**Question 9**
+The mean growth over the last 10 years was computed by subtracting the tree circumference of each tree in 2010 from the tree circumference of each tree in 2020, and then calculating the mean difference, at both sites. Therefore, the mean growth over the last 10 years at the North-East site was 42.94 cm, and 35.49 cm at the South-West site. 
+```{r}
+#Mean 10 year growth for North-East site
+mean(northeast_trees$Circumf_2020_cm - northeast_trees$Circumf_2010_cm)
+
+#Mean 10 year growth for South-West site
+mean(southwest_trees$Circumf_2020_cm - southwest_trees$Circumf_2010_cm)
+```
+
+**Question 10**
+To first determine whether to conduct a Student’s t-test or Welch’s t-test, a F-test was conducted to test for equal variance between 10-year growth tree circumference values at each site (O’Brien, 2023). As a result, the F-test p-value was 0.015 and the ratio of variances was 2.019. Therefore, as the variance is not equal, Welch’s t-test was conducted to determine whether the differences in the growth over the last 10 years, between the North-East and South-West sites was statistically significantly different. This resulted in a 95% confidence interval of -0.39 – 15.29 and a p-value of 0.062. As the 95% confidence interval crosses 0 and the p-value is >0.05, it can be concluded that the growth over the last 10 years is not statistically significantly different between the North-East and South-West sites.  
+```{r}
+#10 year growth at the North-East site
+northeast_trees$Tenyear_growth <- northeast_trees$Circumf_2020_cm - northeast_trees$Circumf_2010_cm
+
+#10 year growth at the South-West site
+southwest_trees$Tenyear_growth <- southwest_trees$Circumf_2020_cm - southwest_trees$Circumf_2010_cm
+
+#Determine the appropriate t-test, Welch's vs Students, via F-test
+var.test(northeast_trees$Tenyear_growth, southwest_trees$Tenyear_growth)
+
+```
+
+```{r}
+#Welch's t-test 
+t.test(northeast_trees$Tenyear_growth, southwest_trees$Tenyear_growth)
+```
+
+
+# Part 2
+
+**Question 1**
+First, the packages seqinr and R.utils are loaded.
+```{r}
+suppressPackageStartupMessages({
+  library("seqinr") 
+  library("R.utils") 
+})
+```
+
+The whole set of coding DNA sequences for E.coli and S.thermophilus were downloaded from the Ensembl database using the download.file command and the seqinr package was used to read in the FASTA files. Using the length command, it is shown that E.coli has 4,239 coding DNA sequences present, whilst S.thermophilus has 1,741. As S.thermophilus has fewer coding sequences than E.coli, this suggests that the S.thermophilus genome encodes less proteins than the E.coli genome. 
+```{r}
+#Downloading and reading in the E.coli coding sequence
+URL_e.coli="http://ftp.ensemblgenomes.org/pub/bacteria/release-53/fasta/bacteria_0_collection/escherichia_coli_str_k_12_substr_mg1655_gca_000005845/cds/Escherichia_coli_str_k_12_substr_mg1655_gca_000005845.ASM584v2.cds.all.fa.gz"
+download.file(URL_e.coli, destfile = "ecoli_cds.fa.gz")
+gunzip("ecoli_cds.fa.gz")
+
+cds_ecoli <- seqinr::read.fasta("ecoli_cds.fa")
+
+#Downloading and reading in the S.thermophilus coding sequence
+URL_s.thermo = "https://ftp.ensemblgenomes.ebi.ac.uk/pub/bacteria/release-62/fasta/bacteria_121_collection/streptococcus_thermophilus_cag_236_gca_000434755/cds/Streptococcus_thermophilus_cag_236_gca_000434755.MGS236.cds.all.fa.gz"
+download.file(URL_s.thermo, destfile = "sthermo_cds.fa.gz")
+gunzip("sthermo_cds.fa.gz")
+
+cds_sthermo <- seqinr::read.fasta("sthermo_cds.fa")
+
+list.files()
+```
+
+```{r}
+#Number of coding sequences present in E.coli and summary of the imported data
+length(cds_ecoli)
+head(summary(cds_ecoli))
+
+#Number of coding sequences present in S.thermophilus and summary of the imported data
+length(cds_sthermo)
+head(summary(cds_sthermo))
+```
+
+**Question 2**
+Through the summation of the length of all genes present in the coding DNA sequences for each organism, it is highlighted that E.coli has 3,978,528 base pairs (bp) in total that make up the total coding DNA sequence, whilst the coding sequence of S.thermophilus has a total of 1,374,033 bp. Therefore, this further suggests that the S.thermophilus genome has less coding DNA sequences present in comparison to E.coli.
+```{r}
+#Total number of base pairs present in the coding sequence of E.coli
+len_ecoli <- as.numeric(summary(cds_ecoli)[,1])
+sum(len_ecoli)
+
+#Total number of base pairs present in the coding sequence of S.thermophilus
+len_sthermo <- as.numeric(summary(cds_sthermo)[,1])
+sum(len_sthermo)
+```
+
+**Question 3**
+The mean coding sequence length for E.coli is 938.55 bp and 789.22 bp for S.thermophilus. Furthermore, the median coding sequence length for E.coli and S.thermophilus is 831 bp and 681 bp. Upon generation of a boxplot of the distribution of coding sequence lengths for the two organisms, it can be concluded that the average coding sequence length of S.thermophilus is shorter than E.coli.
+```{r}
+#Visualisation of distribution of coding sequence length in each organism 
+boxplot(len_ecoli, len_sthermo, 
+        ylab = "Coding Sequence Length (bp)", 
+        main = "Coding Sequence Lengths", 
+        names = c("E.coli", "S.thermophilus"))
+
+#Calculation of mean and median coding sequence length in E.coli
+mean(len_ecoli)
+mean(len_sthermo)
+
+#Calculation of mean and median coding sequence length in S.thermophilus
+median(len_ecoli)
+median(len_sthermo)
+```
+
+**Question 4**
+In terms of the nucleotide composition of the coding sequences present in E.coli in comparison to S.thermophilus, it appears that E.coli has greater GC content than S.thermophilus. This is seen from a greater number of A and T nucleotides present in the coding sequence than G and C. The opposite is seen in the nucleotide composition of E.coli as there appears to be more G nucleotides and slightly more C nucleotides, compared to A and T. 
+```{r}
+#Unlisting of E.coli coding sequence
+dna_ecoli <- unlist(cds_ecoli)
+#Counting the total number of each nucleotide present in the total coding sequence of E.coli
+dna_comp_ecoli <- count(dna_ecoli,1)
+dna_comp_ecoli
+#Visualisation of nucleotide composition of total coding sequence of E.coli
+barplot(dna_comp_ecoli, 
+        xlab = "Nucleotides", 
+        ylab = "Frequency", 
+        main = "E.coli Coding Sequence Nucleotide Composition")
+
+#Unlisting of S.thermophilus coding sequence
+dna_sthermo <- unlist(cds_sthermo)
+#Counting the total number of each nucleotide present in the total coding sequence of S.thermophilus
+dna_comp_sthermo <- count(dna_sthermo,1)
+dna_comp_sthermo
+#Visualisation of nucleotide composition of total coding sequence of S.thermophilus
+barplot(dna_comp_sthermo, 
+        xlab = "Nucleotides", 
+        ylab = "Frequency", 
+        main = "S.thermophilus Coding Sequence Nucleotide Composition")
+```
+
+For amino acid composition, both organisms use the alanine and leucine amino acids. Additionally, it appears that both organisms use the amino acids cysteine, histidine and tryptophan the least. Overall, it appears that the two organisms have relatively similar amino acid compositions.
+```{r}
+#Translation of full DNA coding sequence of E.coli to amino acid coding sequence
+fullprotein_ecoli <- unlist(lapply(cds_ecoli, translate))
+
+#All unique amino acids present within E.coli are stored, expect for * which corresponds to a stop codon. 
+aa <- unique(fullprotein_ecoli)
+aa <- aa[aa != "*"]
+
+#The number of amino acids present in the coding sequence of E.coli is counted 
+protein_comp_ecoli <- count(fullprotein_ecoli,wordsize=1,alphabet=aa)
+protein_comp_ecoli
+
+#The amino acid composition of the total coding sequence of E.coli is visualised using a barplot, with the x-axis labels being shrunk to include all amino acids on the axis
+barplot(protein_comp_ecoli,
+        xlab = "Amino Acids",
+        ylab = "Frequency", 
+        main = "E.coli Amino Acid Composition",
+        cex.names = 0.7)
+
+#######
+
+#Translation of full DNA coding sequence of S.thermophilus to amino acid coding sequence
+fullprotein_sthermo <- unlist(lapply(cds_sthermo, translate))
+
+#The number of amino acids present in the coding sequence of S.thermophilus is counted, using the same alphabet as used with E.coli
+protein_comp_sthermo <- count(fullprotein_sthermo,wordsize=1,alphabet=aa)
+protein_comp_sthermo
+
+#The amino acid composition of the total coding sequence of S.thermophilus is visualised using a barplot, with the x-axis labels being shrunk to include all amino acids on the axis
+barplot(protein_comp_sthermo,
+        xlab = "Amino Acids",
+        ylab = "Frequency", 
+        main = "S.thermophilus Amino Acid Composition",
+        cex.names = 0.7)
+```
+
+**Question 5**
+The k-mers which are under- and over-represented in E.coli differ to those in S.thermophilus. These sequences may be present at alternative levels in the genomes due to the requirement and function of certain proteins within these organisms. As E.coli and S.thermophilus are different organisms, their genomes and subsequent proteins which they require in order to survive will differ. This is a result of their environment and how the two organisms have evolved over time.  
+```{r}
+#Calculation of codon usage indices for E.coli
+codonuse_ecoli <- uco(unlist(cds_ecoli), index = "rscu", as.data.frame = TRUE)
+codonuse_ecoli
+
+#Visualisation of RSCU values of each codon present in the coding sequence of E.coli
+barplot(codonuse_ecoli$RSCU, 
+        names.arg = codonuse_ecoli$codon, 
+        las = 2, 
+        xlab = "Codon", 
+        ylab = "RSCU Value", 
+        main = "Codon Usage Bias in E.coli", 
+        col = "powderblue",
+        cex.names = 0.5)
+
+#Calculation of codon usage indices for S.thermophilus
+codonuse_sthermo <- uco(unlist(cds_sthermo), index = "rscu", as.data.frame = TRUE)
+codonuse_sthermo
+
+#Visualisation of RSCU values of each codon present in the coding sequence of S.thermophilus
+barplot(codonuse_sthermo$RSCU, 
+        names.arg = codonuse_sthermo$codon, 
+        las = 2, 
+        xlab = "Codon", 
+        ylab = "RSCU Value", 
+        main = "Codon Usage Bias in S.thermophilus", 
+        col = "powderblue",
+        cex.names = 0.5)
+```
+
+
+**Question 6**
+To compute the most under- and over-represented k-mers of length 3-5, the count command is used to count characters of length 3-5, using the alphabet previously described when looking at the amino acid composition of the coding sequence of each organism. The k-mer counts are then sorted in ascending order to view the top 10 most under- and over-represented sequences. Following this, the sorted k-mer counts are visualised using the barplot function to highlight the varying frequency of each k-mer. 
+```{r}
+#Computation of k-mers of length 3 in E.coli
+ecoli_counts3 <- count(fullprotein_ecoli, wordsize = 3, alphabet = aa)
+#Sorting k-mer list in ascending order
+sorted_ecoli_counts3 <- ecoli_counts3[order(ecoli_counts3)]
+#Returning the top 10 most under- and over-represented k-mers of length 3 in E.coli
+head(sorted_ecoli_counts3, n=10)
+tail(sorted_ecoli_counts3, n=10)
+
+#Visualisation of sorted k-mer count as a barplot
+barplot(sorted_ecoli_counts3,
+        las = 2, 
+        xlab = "K-mer", 
+        ylab = "Frequency", 
+        main = "K-mers of Length 3 Present in E.coli", 
+        cex.names = 0.5)
+
+#The above is repeated for k-mers of length 4 and 5 
+
+ecoli_counts4 <- count(fullprotein_ecoli, wordsize = 4, alphabet = aa)
+sorted_ecoli_counts4 <- ecoli_counts4[order(ecoli_counts4)]
+head(sorted_ecoli_counts4, n=10)
+tail(sorted_ecoli_counts4, n=10)
+
+barplot(sorted_ecoli_counts4,
+        las = 2, 
+        xlab = "K-mer", 
+        ylab = "Frequency", 
+        main = "K-mers of Length 4 Present in E.coli", 
+        cex.names = 0.5)
+
+ecoli_counts5 <- count(fullprotein_ecoli, wordsize = 5, alphabet = aa)
+sorted_ecoli_counts5 <- ecoli_counts5[order(ecoli_counts5)]
+head(sorted_ecoli_counts5, n=10)
+tail(sorted_ecoli_counts5, n=10)
+
+barplot(sorted_ecoli_counts5,
+        las = 2, 
+        xlab = "K-mer", 
+        ylab = "Frequency", 
+        main = "K-mers of Length 5 Present in E.coli", 
+        cex.names = 0.5)
+
+##############################################
+
+#k-mers of length 3-5 are computed for S.thermophilus, same as what was done for E.coli
+
+sthermo_counts3 <- count(fullprotein_sthermo, wordsize = 3, alphabet = aa)
+sorted_sthermo_counts3 <- sthermo_counts3[order(sthermo_counts3)]
+head(sorted_sthermo_counts3, n=10)
+tail(sorted_sthermo_counts3, n=10)
+
+barplot(sorted_sthermo_counts3,
+        las = 2, 
+        xlab = "K-mer", 
+        ylab = "Frequency", 
+        main = "K-mers of Length 3 Present in S.thermophilus", 
+        cex.names = 0.5)
+
+sthermo_counts4 <- count(fullprotein_sthermo, wordsize = 4, alphabet = aa)
+sorted_sthermo_counts4 <- sthermo_counts4[order(sthermo_counts4)]
+head(sorted_sthermo_counts4, n=10)
+tail(sorted_sthermo_counts4, n=10)
+
+barplot(sorted_sthermo_counts4,
+        las = 2, 
+        xlab = "K-mer", 
+        ylab = "Frequency", 
+        main = "K-mers of Length 4 Present in S.thermophilus", 
+        cex.names = 0.5)
+
+sthermo_counts5 <- count(fullprotein_sthermo, wordsize = 5, alphabet = aa)
+sorted_sthermo_counts5 <- sthermo_counts5[order(sthermo_counts5)]
+head(sorted_sthermo_counts5, n=10)
+tail(sorted_sthermo_counts5, n=10)
+
+barplot(sorted_sthermo_counts5,
+        las = 2, 
+        xlab = "K-mer", 
+        ylab = "Frequency", 
+        main = "K-mers of Length 5 Present in S.thermophilus", 
+        cex.names = 0.5)
+
+```
+
+# Session Info 
+```{r}
+sessionInfo()
+```
+
+
+# References 
+Advanced R barplot customization [Online]. Available: https://r-graph-gallery.com/210-custom-barplot-layout.html [Accessed Oct 2025].
+Chapter 11 Histogram | Basic R Guide for NSC Statistics [Online]. Available: https://bookdown.org/dli/rguide/histogram.html [Accessed Oct 2025].
+O’BRIEN, K. 2023. Testing for Equality of Variance [Online]. Available: https://rpubs.com/DragonflyStats/Variance-Test [Accessed Oct 2025].
+TUBBY & ZX8754. 2015. Change scale of histogram in R [Online]. stack overflow. Available: https://stackoverflow.com/questions/30378955/change-scale-of-histogram-in-r [Accessed Oct 2025].
+WHV20 & ISSAC. 2015. names on the x-axis of barplot in R? [Online]. stack overflow. Available: https://stackoverflow.com/questions/28416992/names-on-the-x-axis-of-barplot-in-r [Accessed Oct 2025].
+XIE, Y. 2020. stringsAsFactors. Available from: https://blog.r-project.org/2020/02/16/stringsasfactors/ [Accessed Oct 2025].
