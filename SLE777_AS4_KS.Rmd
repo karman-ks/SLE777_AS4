@@ -168,14 +168,14 @@ The download.file command is used to download the FASTA files of the coding sequ
 #Downloading and reading in the E.coli coding sequence
 URL_e.coli="http://ftp.ensemblgenomes.org/pub/bacteria/release-53/fasta/bacteria_0_collection/escherichia_coli_str_k_12_substr_mg1655_gca_000005845/cds/Escherichia_coli_str_k_12_substr_mg1655_gca_000005845.ASM584v2.cds.all.fa.gz"
 download.file(URL_e.coli, destfile = "ecoli_cds.fa.gz")
-#gunzip("ecoli_cds.fa.gz")
+gunzip("ecoli_cds.fa.gz")
 
 cds_ecoli <- seqinr::read.fasta("ecoli_cds.fa")
 
 #Downloading and reading in the S.thermophilus coding sequence
 URL_s.thermo = "https://ftp.ensemblgenomes.ebi.ac.uk/pub/bacteria/release-62/fasta/bacteria_121_collection/streptococcus_thermophilus_cag_236_gca_000434755/cds/Streptococcus_thermophilus_cag_236_gca_000434755.MGS236.cds.all.fa.gz"
 download.file(URL_s.thermo, destfile = "sthermo_cds.fa.gz")
-#gunzip("sthermo_cds.fa.gz")
+gunzip("sthermo_cds.fa.gz")
 
 cds_sthermo <- seqinr::read.fasta("sthermo_cds.fa")
 
